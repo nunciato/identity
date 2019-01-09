@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
+import { AWSImportExportReadOnlyAccess } from "@pulumi/aws/iam";
 
 // Create a bot user for CI/CD.
 const botUser = new aws.iam.User("botUser");
@@ -71,12 +72,9 @@ export const appRole = roleWithPolicies(
 );
 
 // Export the bot for use with other stacks.
-export const bot = {
-    arn: botUser.arn,
-    name: botUser.name,
-    accessKey: botKey.id,
-    secretKey: botKey.secret,
-};
-
+export const botUserArn = botUser.arn
+export const botUserName = botUser.name
+export const botUserKeyId = botKey.id
+export const botUserKeySecret = botKey.secret
 export const infraRoleArn = infraRole.arn;
 export const appRoleArn = appRole.arn;

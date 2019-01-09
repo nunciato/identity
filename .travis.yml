@@ -1,6 +1,31 @@
+language: node_js
+
 before_install:
   - echo "$TRAVIS_COMMIT"
   - echo "$TRAVIS_TAG"
   - echo "$TRAVIS_BRANCH"
   - echo "$TRAVIS_BUILD_NUMBER"
+  - echo "$TRAVIS_PULL_REQUEST_BRANCH"
   - echo "$TRAVIS_REPO_SLUG"
+  - curl -fsSL https://get.pulumi.com | sh
+  - export PATH="/home/travis/.pulumi/bin:$PATH"
+  - pulumi version
+  - pulumi login
+
+script:
+  - if [[ $TRAVIS_BRANCH = "release" ]]; then PULUMI_STACK_NAME="nunciato/identity-prod"; fi
+  - if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH" && $TRAVIS_BRANCH = "master" ]]; then PULUMI_STACK_NAME="nunciato/identity-stage"; fi
+  - echo "Targeting stack $PULUMI_STACK_NAME"
+  - pulumi stack select $PULUMI_STACK_NAME
+  - pulumi config refresh
+  - export AWS_ACCESS_KEY_ID="$(pulumi stack output botUserKeyId)"
+  - export AWS_SECRET_ACCESS_KEY="$(pulumi stack output botUserKeySecret)"
+  - pulumi update --yes
+
+env:
+  global:
+    - PULUMI_STACK_NAME: nunciato/identity-test
+    # PULUMI_API
+    - secure: WnN0quk8S+m5gGD6WDeY9YMEVoS/7wS4DoYM7u8zyiDSjtv8/tkOJOujNhhtOoSZIApA4yztlF6vC/loEYxRiEPRfQ7QuPIv80V5C18zKm6EV9BRP8ZmOHzAEBQ/+3myYA34YJVYP5ScQLOVhd2JKOie/WV+u1r4icfh6YxPX3DxXKVJv7XXMXh3L2CjeSp5538UjYGrsHFIg+KNrWtODhUGFIGR2jbyL2CPhguYkWKCMN95pELnOa4mRidnYx4Sd7yZha3bEoIBDVGfpY6J+eVXMEk4ME1crsdP/qL0277CFiM4cfjohIWfXc1SxeqJKRZlWk4gw7NJPYvttR73CtNdouTQeopr4ZYnPpsa6mMfMPhkD5V6f396vThrHgwkJfPW9TS6ZHiruXIZKYOQDJJCEL17YBsCvv84mkIWbf003DHK6SI18sOy1ccj1apOp8hMcyE+Styo8rO7U9HD4XgC1Nhacp01nOGpD8tz+kCM3NXk5BbeMPGZYyGMpOvmnf2iAbG6X+pv4VquqUH0KLTLENyFW4+vr3Bf/n0sTJOVoR4y9ZsRaO//OI2duSPtxj7HUbHyZ53s4+11Hd5pRUAPG5tZrjkoCMZSbH2UBJpWx+5DHGqBVZA+9mBvag+o9vD8IJaRtJTAeIQ5Thuwe6hAJMuGp//RmYV82qb30no=
+    # PULUMI_ACCESS_TOKEN
+    - secure: tQbh6ZzJO7kUDwcgXCzakRrdPeMVFOm+zeWY4uKCOhtXBgC4f3bx3Fyds/fw7DVgDfNs+8zJ5wl4N0nQko/hvpqcV4S08YVQl1SBa0Bplf/FWot/N7glYgqEbjJr+Qrqoki1u4xUdXKvPnXreNezaEFYIDMlbzwO38/WMxyO7K6D9mXeO3NFlvvyVwzRofgaTb1/s4hUeksd84n7GceSBQ1tKrHkl7vANknkuYeTImEZOgGiSPkEw4PT0t0zKF7iyDhXbgNg1FCXCmIR5SDJr4TQgEuHPxYMGk0P+oB1+9wtSCvXVdkUXf+zIn7Iup5VRXr6WRuQUa2UGG/XUwGJxFVKhWsY/SZXG8Dd45bbuGbFzeao+xbVdKK+UXY/cRS4MgHWG30JOCk9znLqT7RpmhDMnLUPp+tVfB+Ff9L1lzXYKZIxenpaVH7dnlp8Fz+WLKH/SJCRPDA9odBVLN7rmOzTF9CHro/MSdsmnMiYJpuQBlLElR43dnpjcMIHKs89wtlklhR005ODf3GpBMzdFxuUAN4nHv45lSXHsvnXgOpnL1rWcK5rttPaumaCs4bkQimDXjecLEBA0l4XKdWA56GeWwGT5te+I2iWu1bN0a4w3zjeJhgtHBaJgboJKUo4YBy0RQm/B6kv0G/puo14zbS5h888T1ueuB/Rbqvs+yw=
