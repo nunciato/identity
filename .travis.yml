@@ -13,6 +13,8 @@ before_install:
   - pulumi login
 
 script:
+  # Commits to master target the staging stack; commits to releas target production.
+  # Everything else targets testing.
   - if [[ $TRAVIS_BRANCH = "release" ]]; then PULUMI_STACK_NAME="nunciato/identity-prod"; fi
   - if [[ -z "$TRAVIS_PULL_REQUEST_BRANCH" && $TRAVIS_BRANCH = "master" ]]; then PULUMI_STACK_NAME="nunciato/identity-stage"; fi
   - echo "Targeting stack $PULUMI_STACK_NAME"
