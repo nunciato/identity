@@ -1,4 +1,3 @@
-# language: go
 language: node_js
 
 before_install:
@@ -9,12 +8,5 @@ before_install:
   - pulumi version
   - pulumi login
 
-  # Install and start travisqueue
-  # - go get github.com/pulumi/travisqueue
-  # - travisqueue start
-
 script:
   - ./scripts/travis_${TRAVIS_EVENT_TYPE}.sh
-
-# after_script:
-#   - travisqueue finish
