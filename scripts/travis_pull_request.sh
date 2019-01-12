@@ -1,17 +1,13 @@
 echo "Travis pull_request job"
 
-# Download dependencies and build
-# npm install
-# npm run build
-
 # Preview changes that would be made if the PR were merged.
 case ${TRAVIS_BRANCH} in
     master)
-        pulumi stack select nunciato/identity-stage
+        pulumi stack select nunciato/identity-staging
         pulumi preview
         ;;
     production)
-        pulumi stack select nunciato/identity-prod
+        pulumi stack select nunciato/identity-production
         pulumi preview
         ;;
     *)
